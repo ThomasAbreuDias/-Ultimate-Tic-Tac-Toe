@@ -7,6 +7,7 @@ class Grid {
     private Case[][] grid;
 /*Constructeur*/
     public Grid(){
+        grid = new Case[3][3];
         for (int i = 0;i < 3 ;i++ ) {
             for (int j = 0;j < 3 ;j++ ) {
                 grid[i][j] = new Case(i,j);
@@ -16,34 +17,40 @@ class Grid {
     public void displayGrid(){
         for (int i = 0; i < 3; i++ ) {
             for (int j = 0; j < 3; j++ ) {
-                System.out.print(grid[i][j]);
+                System.out.print("|"+grid[i][j]);
             }
-            System.out.println();
+            System.out.println("|");
         }
     }
-    // private int checkWinner() {
-    //     for (int i = 0; i < 3; i++) {
-    //         // check rows
-    //         if (grid[i][0] > 0 && grid[i][0] == grid[i][1] && grid[i][0] == grid[i][2]) {
-    //             return grid[i][0];
-    //         }
+    public void play(int i, int j, int player_sign){
+        if(grid[i][j].getType() == 0){
+            grid[i][j].setType(player_sign);
+        }
+        this.checkWinner();
+    }
+    private int checkWinner() {
+        for (int i = 0; i < 3; i++) {
+            // check rows
+            if (grid[i][0].getType() > 0 && grid[i][0].getType() == grid[i][1].getType() && grid[i][0].getType() == grid[i][2].getType()) {
+                System.exit(grid[i][0].getType());
+            }
 
-    //         // check cols
-    //         if (grid[0][i] > 0 && grid[0][i] == grid[1][i] && grid[0][i] == grid[2][i]) {
-    //             return grid[0][i];
-    //         }
-    //     }
+            // check cols
+            if (grid[0][i].getType() > 0 && grid[0][i].getType() == grid[1][i].getType() && grid[0][i].getType() == grid[2][i].getType()) {
+                System.exit(grid[0][i].getType());
+            }
+        }
 
-    //     // check diags
-    //     if (grid[0][0] > 0 && grid[0][0] == grid[1][1] && grid[0][0] == grid[2][2]) {
-    //         return grid[0][0];
-    //     }
-    //     if (grid[2][0] > 0 && grid[2][0] == grid[1][1] && grid[2][0] == grid[0][2]) {
-    //         return grid[2][0];
-    //     }
+        // check diags
+        if (grid[0][0].getType() > 0 && grid[0][0].getType() == grid[1][1].getType() && grid[0][0].getType() == grid[2][2].getType()) {
+            System.exit(grid[0][0].getType());
+        }
+        if (grid[2][0].getType() > 0 && grid[2][0].getType() == grid[1][1].getType() && grid[2][0].getType() == grid[0][2].getType()) {
+           System.exit(grid[2][0].getType());
+        }
 
-    //     return 0;
-    // }
+        return 0;
+    }
 }
 class Case{
     public final static int NEUTRE  = 0;
@@ -114,27 +121,33 @@ class GridIndex{
 class Player {
 
     public static void main(String args[]) {
-        // Scanner in = new Scanner(System.in);
+        Scanner in = new Scanner(System.in);
+        Grid g = new Grid();
+        int player_sign = 1;
 
-        // // game loop
-        // while (true) {
-        //     int opponentRow = in.nextInt();
-        //     int opponentCol = in.nextInt();
-        //     int validActionCount = in.nextInt();
-        //     for (int i = 0; i < validActionCount; i++) {
-        //         int row = in.nextInt();
-        //         int col = in.nextInt();
-        //     }
+        // game loop
+        while (true) {
+            int opponentRow = in.nextInt();
+            System.out.println("Saisie: "+opponentRow);
 
-        //     // Write an action using System.out.println()
-        //     // To debug: System.err.println("Debug messages...");
+            int opponentCol = in.nextInt();
+            System.out.println("Saisie; "+opponentCol);
+            g.play(opponentRow, opponentCol, player_sign);
+            g.displayGrid();
 
-        //     System.out.println("0 0");
-        // }
-        //Grid g = new Grid();
-        Case g = new Case(1,2);
-        System.out.println(g);
-        //g.displayGrid();
+
+            // int validActionCount = in.nextInt();
+
+            // for (int i = 0; i < validActionCount; i++) {
+            //     int row = in.nextInt();
+            //     int col = in.nextInt();
+            // }
+
+            // Write an action using System.out.println()
+            // To debug: System.err.println("Debug messages...");
+
+            System.out.println("0 0");
+        }
 
     }
 }
