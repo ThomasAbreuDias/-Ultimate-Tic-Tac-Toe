@@ -1,22 +1,27 @@
+/*Thomas Abreu Dias aka Boya*/
+/*Dépot git: https://github.com/ThomasAbreuDias/-Ultimate-Tic-Tac-Toe */
 import java.util.*;
 import java.io.*;
 import java.math.*;
-
+import java.util.HashMap;
+ //revoir Tree
+//la fonction de parcour de ttt
 
 
 // Class qui représente un grille de morpion
 class Grid {
     private Case[][] grid;
-    public static int mysign;
-    private int player_sign;
+    public static int MYSIGN;
+    private int actual_sign;
     private int turn_counter;
+    public final static int ROW = 3;
+    public final static int COL = 3;
 
     /*Constructeur*/
     public Grid(){
-        grid = new Case[3][3];
-        turn_counter = grid.length;
-        player_sign = 1;
-        this.mysign = mysign;
+        grid = new Case[Grid.ROW][Grid.COL];
+        turn_counter = Grid.ROW * Grid.COL;
+        actual_sign = 1;
         for (int i = 0;i < 3 ;i++ ) {
             for (int j = 0;j < 3 ;j++ ) {
                 grid[i][j] = new Case(i,j);
@@ -28,10 +33,24 @@ class Grid {
             return true;
         else
             return false;
-
     }
-    public void setMySign(int sign){
-        this.mysign = sign;
+
+    public boolean isPlayable(GridIndex gi){
+        if(this.grid[gi.getI()][gi.getJ()].getType() == 0)
+            return true;
+
+        return false;
+    }
+
+    public boolean isPlayable(int i, int j){
+        if(this.grid[i][j].getType() == 0)
+            return true;
+
+        return false;
+    }
+
+    public void setMYSIGN(int sign){
+        this.MYSIGN = sign;
     }
     public Case getCase(GridIndex gi){
         return this.grid[gi.getI()][gi.getJ()];
@@ -45,31 +64,33 @@ class Grid {
             System.out.println("|");
         }
     }
-    public int getPlayer_sign(){
-        return this.player_sign;
+    public int getActual_sign(){
+        return this.actual_sign;
     }
     public int getTurn(){
         return this.grid.length - this.turn_counter;
     }
 
-    public void play(GridIndex gi, int player_sign){
-        if(grid[gi.getI()][gi.getJ()].getType() == 0){
-            grid[gi.getI()][gi.getJ()].setType(player_sign);
+    public Grid play(GridIndex gi){
+
+        if(this.isPlayable(gi)){
+            grid[gi.getI()][gi.getJ()].setType(this.actual_sign);
         }
         this.turn_counter--;
         this.checkWinner();
         this.changeTurn();
+        return this;
     }
 
     public void changeTurn(){
         if(this.turn_counter%2 == 0)
-            this.player_sign = 2;
+            this.actual_sign = 2;
         else
-            this.player_sign = 1;
+            this.actual_sign = 1;
     }
     public int checkWinner() {
         if(this.turn_counter <= 0)
-            System.exit(0);
+            System.out.println(this.turn_counter);
         for (int i = 0; i < 3; i++) {
             // check rows
             if (grid[i][0].getType() > 0 && grid[i][0].getType() == grid[i][1].getType() && grid[i][0].getType() == grid[i][2].getType()) {
@@ -93,96 +114,91 @@ class Grid {
         return 0;
     }
     public int checkneighbor(){
-
         for (int i = 0; i < 3; i++) {
           if(grid[i][0].getType() > 0 && grid[i][1].getType() > 0){ // check up and middle of a row (wich row it is depends on i's value)
-                if(grid[i][0].getType() == mysign && grid[i][1].getType() == mysign)
-                    return 10;
-                else if(grid[i][0].getType() != mysign && grid[i][1].getType() != mysign)
-                    return -10;
-            }
-
-            if(grid[i][0].getType() > 0 && grid[i][2].getType() > 0){ // check up and down of a row (wich row it is depends on i's value)
-                if(grid[i][0].getType() == mysign && grid[i][2].getType() == mysign)
-                    return 10;
-                else if(grid[i][0].getType() != mysign && grid[i][2].getType() != mysign)
-                    return -10;
+                if(grid[i][0].getType() == grid[i][1].getType())
+                    return (grid[i][1].getType() == Grid.MYSIGN) ? 10 : -10;
 
             }
-
             if(grid[i][1].getType() > 0 && grid[i][2].getType() > 0){ // check middle and down of a row (wich row it is depends on i's value)
-                if(grid[i][1].getType() == mysign && grid[i][2].getType() == mysign)
+                if(grid[i][1].getType() == Grid.MYSIGN && grid[i][2].getType() == Grid.MYSIGN)
                     return 10;
-                else if(grid[i][1].getType() != mysign && grid[i][2].getType() != mysign)
+                else if(grid[i][1].getType() != Grid.MYSIGN && grid[i][2].getType() != Grid.MYSIGN)
                     return -10;
 
             }
+            if(grid[i][0].getType() > 0 && grid[i][2].getType() > 0){ // Pas vraiment cote a cote
+                if(grid[i][0].getType() == Grid.MYSIGN && grid[i][2].getType() == Grid.MYSIGN)
+                    return 10;
+                else if(grid[i][0].getType() != Grid.MYSIGN && grid[i][2].getType() != Grid.MYSIGN)
+                    return -10;
 
+            }
 
             if(grid[0][i].getType() > 0 && grid[1][i].getType() > 0){ // check left and middle of a column (wich column it is depends on i's value)
-                if(grid[0][i].getType() == mysign && grid[1][i].getType() == mysign)
+                if(grid[0][i].getType() == Grid.MYSIGN && grid[1][i].getType() == Grid.MYSIGN)
                     return 10;
-                else if(grid[0][i].getType() != mysign && grid[1][i].getType() != mysign)
+                else if(grid[0][i].getType() != Grid.MYSIGN && grid[1][i].getType() != Grid.MYSIGN)
                     return -10;
 
             }
 
             if(grid[0][i].getType() > 0 && grid[2][i].getType() > 0){ // check middle and right of a column (wich column it is depends on i's value)
-                if(grid[0][i].getType() == mysign && grid[2][i].getType() == mysign)
+                if(grid[0][i].getType() == Grid.MYSIGN && grid[2][i].getType() == Grid.MYSIGN)
                     return 10;
-                else if(grid[0][i].getType() != mysign && grid[2][i].getType() != mysign)
+                else if(grid[0][i].getType() != Grid.MYSIGN && grid[2][i].getType() != Grid.MYSIGN)
                     return -10;
             }
 
             if(grid[1][i].getType() > 0 && grid[2][i].getType() > 0){ // check left and right of a column (wich column it is depends on i's value)
-                if(grid[1][i].getType() == mysign && grid[2][i].getType() == mysign)
+                if(grid[1][i].getType() == Grid.MYSIGN && grid[2][i].getType() == Grid.MYSIGN)
                     return 10;
-                else if(grid[1][i].getType() != mysign && grid[2][i].getType() != mysign)
+                else if(grid[1][i].getType() != Grid.MYSIGN && grid[2][i].getType() != Grid.MYSIGN)
                     return -10;
             }
         }
 
         if(grid[0][0].getType() > 0 && grid[1][1].getType() > 0){ //up left and middle
-            if (grid[0][0].getType() == mysign && grid[1][1].getType() == mysign)
+            if (grid[0][0].getType() == Grid.MYSIGN && grid[1][1].getType() == Grid.MYSIGN)
                 return 10;
-            else if(grid[0][0].getType() != mysign && grid[1][1].getType() != mysign)
+            else if(grid[0][0].getType() != Grid.MYSIGN && grid[1][1].getType() != Grid.MYSIGN)
                 return -10;
         }
 
         if(grid[0][0].getType() > 0 && grid[2][2].getType() > 0){//up left and down right
-            if (grid[0][0].getType() == mysign && grid[2][2].getType() == mysign)
+            if (grid[0][0].getType() == Grid.MYSIGN && grid[2][2].getType() == Grid.MYSIGN)
                 return 10;
-            else if(grid[0][0].getType() != mysign && grid[2][2].getType() != mysign)
+            else if(grid[0][0].getType() != Grid.MYSIGN && grid[2][2].getType() != Grid.MYSIGN)
                 return -10;
         }
 
         if(grid[1][1].getType() > 0 && grid[2][2].getType() > 0){//middle and down right
-            if (grid[1][1].getType() == mysign && grid[2][2].getType() == mysign)
+            if (grid[1][1].getType() == Grid.MYSIGN && grid[2][2].getType() == Grid.MYSIGN)
                 return 10;
-            else if(grid[1][1].getType() != mysign && grid[2][2].getType() != mysign)
+            else if(grid[1][1].getType() != Grid.MYSIGN && grid[2][2].getType() != Grid.MYSIGN)
                 return -10;
         }
 
 
 
         if(grid[2][0].getType() > 0 && grid[1][1].getType() > 0){ //down left and middle
-            if (grid[2][0].getType() == mysign && grid[1][1].getType() == mysign)
+            if (grid[2][0].getType() == Grid.MYSIGN && grid[1][1].getType() == Grid.MYSIGN)
                 return 10;
-            else if(grid[2][0].getType() != mysign && grid[1][1].getType() != mysign)
+            else if(grid[2][0].getType() != Grid.MYSIGN && grid[1][1].getType() != Grid.MYSIGN)
                 return -10;
         }
 
         if(grid[2][0].getType() > 0 && grid[0][2].getType() > 0){ //down left and up right
-            if (grid[2][0].getType() == mysign && grid[0][2].getType() == mysign)
+            if (grid[2][0].getType() == Grid.MYSIGN && grid[0][2].getType() == Grid.MYSIGN)
                 return 10;
-            else if(grid[2][0].getType() != mysign && grid[0][2].getType() != mysign)
+            else if(grid[2][0].getType() != Grid.MYSIGN && grid[0][2].getType() != Grid.MYSIGN)
                 return -10;
         }
 
         if(grid[1][1].getType() > 0 && grid[0][2].getType() > 0){ //middle and up right
-            if (grid[1][1].getType() == mysign && grid[0][2].getType() == mysign)
+            if (grid[1][1].getType() == Grid.MYSIGN && grid[0][2].getType() == Grid.MYSIGN)
                 return 10;
-            else if(grid[1][1].getType() != mysign && grid[0][2].getType() != mysign)
+            else if(grid[1][1].getType() != Grid.MYSIGN && grid[0][2].getType() != Grid.MYSIGN)
                 return -10;
         }
 
@@ -190,92 +206,6 @@ class Grid {
     }
 }
 
-class Tree {
-    private ArrayList<Node> tree;
-
-    public Tree(Grid g, int deep ){
-        for(int i=0;i<3; i++){
-            for(int j=0;j<3;j++){
-                GridIndex gi = new GridIndex(i, j);
-               if(g.getCase(gi).getType() == 0){
-                    Node n = new Node(g, gi, deep);
-                    tree.add(n);
-                }
-            }
-        }
-    }
-    public  int eval(Grid grid){
-        if(grid.isTheEnd() && grid.checkWinner() == Grid.mysign){//win
-            return Node.MAXEVAL - grid.getTurn();
-        }else if(grid.isTheEnd() && grid.checkWinner() != Grid.mysign){//loose
-            return Node.MINEVAL + grid.getTurn();
-        }else if(grid.isTheEnd() && grid.checkWinner() == 0 ){ //draw
-            return 0;
-        }if(!grid.isTheEnd()){
-            return grid.checkneighbor();
-        }
-        return -1;
-    }
-}
-class Node{
-    public final static int MINEVAL = -100000;
-    public final static int MAXEVAL = 100000;
-    private Grid grid;
-    private GridIndex grid_index;
-    private int score;
-    private int deep;
-
-    public Node(Grid g, GridIndex gi, int deep){
-        this.grid       = g;
-        this.grid_index = gi;
-        this.score      = 0;
-        this.deep       = deep;
-    }
-
-
-    private int min(Grid grid, int deep){
-        int min_val = Node.MAXEVAL;
-        int tmp;
-
-        // if(!grid.isTheEnd() || deep == 0)
-        //     eval()
-
-        // for(int i=0;i<3; i++){
-        //     for(int j=0;j<3;j++){
-        //         GridIndex gi = new GridIndex(i, j);
-        //        if(this.grid.getCase(gi).getType() == 0){
-                    this.grid.play(this.grid_index, this.grid.getPlayer_sign());
-                    tmp = this.max(this.grid, deep--);
-                    if(tmp < min_val)
-                        min_val = tmp;
-        //        }
-        //     }
-        // }
-        this.score = min_val;
-        return min_val;
-    }
-    private int max(Grid grid, int deep){
-        int max_val = Node.MINEVAL;
-        int tmp;
-
-        // if(!grid.isTheEnd() || deep == 0)
-        //     eval()
-
-        // for(int i=0;i<3; i++){
-        //     for(int j=0;j<3;j++){
-        //         GridIndex gi = new GridIndex(i, j);
-        //        if(grid.getCase(gi).getType() == 0){
-                    grid.play(this.grid_index, grid.getPlayer_sign());
-                    tmp = this.min(grid, deep--);
-                    if(tmp > max_val)
-                        max_val = tmp;
-        //        }
-        //     }
-        // }
-        this.score = max_val;
-        return max_val;
-    }
-}
 class Case{
     public final static int NEUTRE  = 0;
     public final static int CROSS   = 1;
@@ -308,9 +238,9 @@ class Case{
     }
 
 
-    public boolean setType(int player_sign){
-        if(player_sign == 1 || player_sign == 2){
-            this.type = player_sign;
+    public boolean setType(int actual_sign){
+        if(actual_sign == 1 || actual_sign == 2){
+            this.type = actual_sign;
             return true;
         }else
             return false;
@@ -349,39 +279,77 @@ class GridIndex{
         return this.j;
     }
     public String toString(){
-        return this.i+" "+this.j;
+        return "{ "+this.i+" "+this.j+" }";
     }
 }
+class Tree{
+    private Map<String, Tree> sons = new HashMap<>();
+    private Grid grid;
+    private int depth;
 
+    public Tree(Grid g){
+        this.grid = g;
+    }
+    public int getSize(){
+        return sons.size();
+    }
+    public void put(String key, Tree t){
+        sons.put(key, t);
+    }
+    public Tree makeBranch(int depth, Grid g){
+        if(depth < 0)
+            return null;
+        Tree tree = new Tree(g);
+        for (int i = 0 ; i < 3 && depth > 0; i++){
+            for (int j = 0 ; j < 3 && depth > 0; j++){
+                if(g.isPlayable(i,j) && !g.isTheEnd()){
+                    GridIndex gi = new GridIndex(i, j);
+                    tree.put(""+i+""+j,makeBranch(depth-1, g.play(gi)));
+                }
+            }
+        }
+        return tree;
+    }
+    public void showBranch(){
+        for(Tree son : sons.values())
+          this.grid.displayGrid();
+    }
+}
 /**
  * Auto-generated code below aims at helping you parse
  * the standard input according to the problem statement.
  **/
 class Player {
-
     public static void main(String args[]) {
          Scanner in = new Scanner(System.in);
          Grid g = new Grid();
          GridIndex gi = new GridIndex();
 
         // game loop
-        while (true) {
-            int opponentRow = in.nextInt();
-            int opponentCol = in.nextInt();
-            int validActionCount = in.nextInt();
-            for (int i = 0; i < validActionCount; i++) {
-                int row = in.nextInt();
-                int col = in.nextInt();
-            }
-            if(opponentRow == -1 && opponentCol == -1) // si je commence
-                g.setMySign(Case.CROSS);
-            else{
-                gi.setIndex(opponentRow, opponentCol);
-                g.setMySign(Case.ZERO);
-                g.play(gi, Case.CROSS);
-            }
-            Tree t = new Tree(g, 3);
-        }
+        //while (true) {
+            //System.out.println("Entrez vos coordoné");
+            //int opponentRow = in.nextInt();
+            //int opponentCol = in.nextInt();
+            //int validActionCount = in.nextInt();
+            // for (int i = 0; i < validActionCount; i++) {
+            //     int row = in.nextInt();
+            //     int col = in.nextInt();
+            // }
+            // if(opponentRow == -1 && opponentCol == -1 || Integer.parseInt(args[0]) == 1)// si je commence
+            //     g.setMYSIGN(Case.CROSS);
+            // else{
+            //     gi.setIndex(opponentRow, opponentCol);
+            //     g.setMYSIGN(Case.ZERO);
+            // }
+            //gi.setIndex(opponentRow, opponentCol);
+            //g = testjeu(g,gi);
+            Tree t = new Tree(g);
+            t = t.makeBranch(3, g);
+            System.out.println(t.getSize());
+            t.showBranch();
+
+
+        //}
     }
 }
 
