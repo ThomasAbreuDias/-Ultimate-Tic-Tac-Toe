@@ -45,17 +45,18 @@ class Grid{
     if (depth < 0){
       return null;
     }
-
+    int n = 0 ;
     Grid g = new Grid(remaining_turn, myturn, gi);
 
-    for (int n = 0 ; n < remaining_turn && depth -1 >=0 ; n++){
+    if(n < remaining_turn && depth >= 1 ){
       for (int i = 0; i < Grid.ROW; i++ ) {
         for (int j = 0; j < Grid.COL; j++ ) {
           if(board[i][j].isPlayable()){
             g.board[i][j] = new Case(i,j);
             g.board[i][j].play(getSign());
             g.sons.put(""+n+i+j, makeBranch(remaining_turn - 1, !myturn, depth - 1, new GridIndex(i,j) ));
-            //g.board[i][j].redo();
+            g.board[i][j].redo();
+            n++;
           }
         }
       }
@@ -200,7 +201,7 @@ class Player {
         //     }
             gi = new GridIndex(opponentRow,opponentCol);
             g = new Grid(validActionCount,true,gi);
-            g = g.makeBranch(validActionCount,true,1,new GridIndex(0,0));
+            g = g.makeBranch(validActionCount,true,2,new GridIndex(0,0));
 
 
             System.out.println(g);
