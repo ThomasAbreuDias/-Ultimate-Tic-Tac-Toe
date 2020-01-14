@@ -51,8 +51,9 @@ class Grid{
     if(n < remaining_turn && depth >= 1 ){
       for (int i = 0; i < Grid.ROW; i++ ) {
         for (int j = 0; j < Grid.COL; j++ ) {
+          g.board[i][j] = new Case(i,j);
+          g.board[i][j] = this.board[i][j]; //je voulais copier ma case mais ...
           if(board[i][j].isPlayable()){
-            g.board[i][j] = new Case(i,j);
             g.board[i][j].play(getSign());
             g.sons.put(""+n+i+j, makeBranch(remaining_turn - 1, !myturn, depth - 1, new GridIndex(i,j) ));
             g.board[i][j].redo();
