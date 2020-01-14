@@ -10,20 +10,22 @@ class Grid{
   private boolean myturn;
   private int score;
   private int remaining_turn;
-  private GridIndex grid_index;
-  public Case[][] board = new Case[Grid.ROW][Grid.COL];
+  private GridIndex grid_index;//coup actuel
+  public Case[][] board;
 
   //constructor
   public Grid(int remaining_turn, boolean myturn, GridIndex gi){
     this.remaining_turn = remaining_turn;
     this.myturn = myturn;
     this.grid_index = gi;
+    board = new Case[Grid.ROW][Grid.COL];
     makeBoard(gi);
   }
-   public Grid(int remaining_turn, boolean myturn, Case[][] b){
+   public Grid(int remaining_turn, boolean myturn, GridIndex gi, Case[][] b){
     this.remaining_turn = remaining_turn;
     this.myturn = myturn;
-    this.board = board;
+    this.board = b.clone();
+
   }
 
   private void makeBoard(GridIndex gi){
@@ -38,40 +40,28 @@ class Grid{
     }
   }
 
-  public Grid makeBranch(int remaining_turn, boolean myturn, int depth){
+
+  public Grid makeBranch(int remaining_turn, boolean myturn, int depth, GridIndex gi){
     if (depth < 0){
       return null;
     }
 
-    Grid g = new Grid(remaining_turn, myturn, this.board);
+    Grid g = new Grid(remaining_turn, myturn, gi);
+
     for (int n = 0 ; n < remaining_turn && depth -1 >=0 ; n++){
       for (int i = 0; i < Grid.ROW; i++ ) {
         for (int j = 0; j < Grid.COL; j++ ) {
           if(board[i][j].isPlayable()){
+            g.board[i][j] = new Case(i,j);
             g.board[i][j].play(getSign());
-            g.sons.put(""+n+i+j, makeBranch(remaining_turn - 1, !myturn, depth - 1));
-            g.board[i][j].redo();
+            g.sons.put(""+n+i+j, makeBranch(remaining_turn - 1, !myturn, depth - 1, new GridIndex(i,j) ));
+            //g.board[i][j].redo();
           }
         }
       }
     }
     return g;
   }
-  // public Grid makeBranch(int remaining_turn, boolean myturn, int depth){
-  //   if (depth < 0){
-  //     return null;
-  //   }
-
-  //   Grid g = new Grid(remaining_turn, myturn);
-  //   for (int i = 0 ; i < remaining_turn && depth -1 >=0 ; i++){
-  //     GridIndex gi = Case.RATIO[i];
-  //     if(board[gi.getI()][gi.getJ()].isPlayable()){
-  //       g.play(gi);
-  //       g.sons.put(i, makeBranch(remaining_turn - 1, !myturn, depth - 1));
-  //     }
-  //   }
-  //   return g;
-  // }
 
   public int getSign(){
     if(this.remaining_turn%2 == 0)
@@ -96,6 +86,7 @@ class Grid{
   {
     String res = "(";
     res += this.grid_index;
+    displayBoard();
     for(Grid son : sons.values())
       res += ", " +this.grid_index+son.toString();
     res += ")";
@@ -209,7 +200,7 @@ class Player {
         //     }
             gi = new GridIndex(opponentRow,opponentCol);
             g = new Grid(validActionCount,true,gi);
-            g = g.makeBranch(validActionCount,true,2);
+            g = g.makeBranch(validActionCount,true,1,new GridIndex(0,0));
 
 
             System.out.println(g);
